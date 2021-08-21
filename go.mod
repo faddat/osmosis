@@ -10,6 +10,7 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
+	github.com/ipfs/ipget v0.0.0-00010101000000-000000000000
 	github.com/pkg/errors v0.9.1
 	github.com/rakyll/statik v0.1.7
 	github.com/regen-network/cosmos-proto v0.3.1
@@ -26,6 +27,8 @@ require (
 )
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.33.2
+
+replace github.com/ipfs/ipget => github.com/notional-labs/ipget v0.8.1
 
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
 

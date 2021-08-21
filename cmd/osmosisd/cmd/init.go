@@ -6,19 +6,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"time"
 	"strings"
-
+	"time"
 
 	"github.com/cosmos/go-bip39"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-
-	tmcfg "github.com/tendermint/tendermint/config"
-	"github.com/tendermint/tendermint/libs/cli"
-	tmos "github.com/tendermint/tendermint/libs/os"
-	tmrand "github.com/tendermint/tendermint/libs/rand"
-	"github.com/tendermint/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -28,6 +21,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
+	"github.com/ipfs/ipget/get"
+	tmcfg "github.com/tendermint/tendermint/config"
+	"github.com/tendermint/tendermint/libs/cli"
+	tmos "github.com/tendermint/tendermint/libs/os"
+	tmrand "github.com/tendermint/tendermint/libs/rand"
+	"github.com/tendermint/tendermint/types"
 )
 
 const (
@@ -82,20 +81,17 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 			serverCtx := server.GetServerContextFromCmd(cmd)
 			config := serverCtx.Config
 
-
-			//This is a slice of SEED nodes, not peers.  They must be configured in seed mode. 
+			//This is a slice of SEED nodes, not peers.  They must be configured in seed mode.
 			//An easy way to run a lightweight seed node is to use tenderseed: github.com/binaryholdings/tenderseed
-			
-			seeds := []string {
-			"085f62d67bbf9c501e8ac84d4533440a1eef6c45@95.217.196.54:26656"} // Notional
-		 
-			
-			
 
-			
+			seeds := []string{
+				"085f62d67bbf9c501e8ac84d4533440a1eef6c45@95.217.196.54:26656"} // Notional
+
+			//IPFS cid for the genesis state.
+			genesis := "QmXRvBT3hgoXwwPqbK6a2sXUuArGM8wPyo1ybskyyUwUxs"
 
 			//Override default settings in config.toml
-			config.P2P.Seeds = strings.Join(seeds[:],",")
+			config.P2P.Seeds = strings.Join(seeds[:], ",")
 			config.P2P.MaxNumInboundPeers = 150
 			config.P2P.MaxNumOutboundPeers = 40
 			config.Mempool.Size = 10000
@@ -103,7 +99,6 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 			config.FastSync.Version = "v0"
 
 			config.SetRoot(clientCtx.HomeDir)
-
 
 			//Override default settings in app.toml
 			appConfig := appcfg.DefaultConfig()
@@ -141,6 +136,8 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 			config.Moniker = args[0]
 
 			genFile := config.GenesisFile()
+
+			get.Get(genFile, genesis)
 			overwrite, _ := cmd.Flags().GetBool(FlagOverwrite)
 
 			if !overwrite && tmos.FileExists(genFile) {
@@ -167,7 +164,7 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 			genDoc.Validators = nil
 			genDoc.AppState = appState
 			if err = genutil.ExportGenesisFile(genDoc, genFile); err != nil {
-				return errors.Wrap(err, "Failed to export gensis file")
+				return errors.Wrap(err, "Failed to export genesis file")
 			}
 
 			toPrint := newPrintInfo(config.Moniker, chainID, nodeID, "", appState)
