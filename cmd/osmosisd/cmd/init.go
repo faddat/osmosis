@@ -137,12 +137,13 @@ func InitCmd(mbm module.BasicManager, defaultNodeHome string) *cobra.Command {
 
 			genFile := config.GenesisFile()
 
-			get.Get(genFile, genesis)
 			overwrite, _ := cmd.Flags().GetBool(FlagOverwrite)
 
 			if !overwrite && tmos.FileExists(genFile) {
 				return fmt.Errorf("genesis.json file already exists: %v", genFile)
 			}
+			get.Get(genFile, genesis)
+			
 			appState, err := json.MarshalIndent(mbm.DefaultGenesis(cdc), "", " ")
 			if err != nil {
 				return errors.Wrap(err, "Failed to marshall default genesis state")
